@@ -72,7 +72,10 @@ p2pLoadBalancer:
   enabled: false
   # -- NodePort to be used
   port: 31000
-
+p2pNodePort:
+  enabled: true
+  tcpNodePort: 30303
+  udpNodePort: 30303
 ingress:
   # -- Ingress resource for the HTTP API
   enabled: false
