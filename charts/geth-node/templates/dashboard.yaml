@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: geth-dashboard 
+  namespace: monitoring
+  labels:
+     grafana_dashboard: "1"
+     app: geth-dashboard
+data:
+  my_custom_dashboard.json: |-
+{{ .Files.Get "dashboards/geth-dashboard.json" | indent 4 }}

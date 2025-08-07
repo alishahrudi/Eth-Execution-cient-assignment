@@ -1,0 +1,176 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "geth.fullname" . }}
+  labels:
+    {{- include "geth.labels" . | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.annotations | nindent 4 }}
+spec:
+  podManagementPolicy: {{ .Values.podManagementPolicy }}
+  replicas: {{ include "geth.replicas" . }}
+  selector:
+    matchLabels:
+      {{- include "geth.selectorLabels" . | nindent 6 }}
+  serviceName: {{ include "geth.fullname" . }}-headless
+  updateStrategy:
+    {{- toYaml .Values.updateStrategy | nindent 4 }}
+  template:
+    metadata:
+      labels:
+        {{- include "geth.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secrets: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ include "geth.serviceAccountName" . }}
+    {{- if .Values.priorityClassName }}
+      priorityClassName: {{ .Values.priorityClassName }}
+    {{- end }}
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      initContainers:
+      {{- if .Values.initContainers }}
+        {{- tpl (toYaml .Values.initContainers | nindent 8) $ }}
+      {{- end }}
+      {{- if .Values.initChownData.enabled }}
+        - name: init-chown-data
+          image: "{{ .Values.initChownData.image.repository }}:{{ .Values.initChownData.image.tag }}"
+          imagePullPolicy: {{ .Values.initChownData.image.pullPolicy }}
+          securityContext:
+            runAsNonRoot: false
+            runAsUser: 0
+          command: ["chown", "-R", "{{ .Values.securityContext.runAsUser }}:{{ .Values.securityContext.runAsGroup }}", "/data"]
+          resources:
+      {{ toYaml .Values.initChownData.resources | nindent 12 }}
+          volumeMounts:
+            - name: storage
+              mountPath: "/data"
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+          {{- if gt (len .Values.customCommand) 0 }}
+            {{- toYaml .Values.customCommand | nindent 12}}
+          {{- else }}
+            {{- include "geth.defaultCommand" . | nindent 12 }}
+          {{- end }}
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          volumeMounts:
+            {{- if .Values.extraVolumeMounts }}
+              {{ toYaml .Values.extraVolumeMounts | nindent 12}}
+            {{- end }}
+            - name: storage
+              mountPath: "/data"
+            - name: jwt-secret
+              mountPath: /jwt
+              readOnly: true
+            - name: config
+              mountPath: "/config"
+              readOnly: true
+          ports:
+            {{- if .Values.extraContainerPorts }}
+              {{ toYaml .Values.extraContainerPorts | nindent 12}}
+            {{- end }}
+            - name: p2p-tcp
+              containerPort: {{ include "geth.p2pPort" . }}
+              protocol: TCP
+            - name: p2p-udp
+              containerPort: {{ include "geth.p2pPort" . }}
+              protocol: UDP
+            - name: http-rpc
+              containerPort: {{ .Values.httpPort }}
+              protocol: TCP
+            - name: ws-rpc
+              containerPort: {{ .Values.wsPort }}
+              protocol: TCP
+            - name: auth-rpc
+              containerPort: {{ .Values.authPort }}
+              protocol: TCP
+            - name: metrics
+              containerPort: {{ .Values.metricsPort }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          {{- range $key, $value := .Values.secretEnv }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "geth.fullname" $ }}-env
+                  key: {{ $key }}
+          {{- end }}
+          {{- if .Values.extraEnv }}
+            {{- toYaml .Values.extraEnv | nindent 12 }}
+          {{- end }}
+      {{- if .Values.extraContainers }}
+        {{ tpl (toYaml .Values.extraContainers | nindent 8) $ }}
+      {{- end }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      topologySpreadConstraints:
+        {{- toYaml .Values.topologySpreadConstraints | nindent 8 }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      volumes:
+        - name: jwt-secret
+          secret:
+            secretName: {{ .Values.jwtSecret.name }}
+            items:
+              - key: {{ .Values.jwtSecret.key }}
+                path: jwtsecret
+      {{- if .Values.extraVolumes }}
+        {{ toYaml .Values.extraVolumes | nindent 8}}
+      {{- end }}
+        - name: config
+          configMap:
+            name: {{ include "geth.fullname" . }}
+  {{- if not .Values.persistence.enabled }}
+        - name: storage
+          emptyDir: {}
+  {{- else if .Values.persistence.existingClaim }}
+        - name: storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim }}
+  {{- else }}
+  volumeClaimTemplates:
+  - metadata:
+      name: storage
+      annotations:
+        {{- toYaml .Values.persistence.annotations | nindent 8 }}
+    spec:
+      accessModes:
+        {{- toYaml .Values.persistence.accessModes | nindent 8 }}
+      resources:
+        requests:
+          storage: {{ .Values.persistence.size | quote }}
+      storageClassName: {{ .Values.persistence.storageClassName }}
+      {{- if .Values.persistence.selector }}
+      selector:
+        {{- toYaml .Values.persistence.selector | nindent 8 }}
+      {{- end }}
+  {{- end }}
