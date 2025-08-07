@@ -25,8 +25,9 @@ config: |
   [Node.P2P]
   DialRatio = 3
 
-# -- JWT secret used by client as a secret. Change this value.
-jwt: ecb22bc24e7d4061f7ed690ccd5846d7d73f5d2b9733267e12f56790398d908a
+jwtSecret:
+  name: geth-jwt-secret
+  key: jwt-token
 
 # -- Template used for the default command
 # @default -- See `values.yaml`
