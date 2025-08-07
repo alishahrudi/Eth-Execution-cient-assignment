@@ -3,7 +3,6 @@ name: Kind Cluster Test
 on:
   push:
     paths:
-      - "charts/**"
       - "local/kind-config.yaml"
       - ".github/workflows/kind-test.yml"
   pull_request:
