@@ -2,37 +2,36 @@ apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: geth-alerts
-  namespace: monitoring  # or your kube-prometheus-stack namespace
+  namespace: {{ .Release.Namespace }}
   labels:
-    release: kube-prometheus-stack  # must match your Prometheus release name
+    release: {{ .Release.Name }}
 spec:
   groups:
-  - name: geth.rules
-    rules:
+    - name: geth.rules
+      rules:
+        - alert: GethNodeIsSyncing
+          expr: geth_blockchain_syncing{job="geth"} == 1
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Geth node is syncing"
+            description: "Geth node {{ "{{" }} $labels.instance {{ "}}" }} is still syncing with the chain."
 
-    - alert: GethNodeIsSyncing
-      expr: geth_blockchain_syncing{job="geth"} == 1
-      for: 2m
-      labels:
-        severity: warning
-      annotations:
-        summary: "Geth node is syncing"
-        description: "Geth node {{ $labels.instance }} is still syncing with the chain."
+        - alert: GethLowPeerCount
+          expr: geth_network_peers{job="geth"} < 5
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Low Geth peer count"
+            description: "Geth node {{ "{{" }} $labels.instance {{ "}}" }} has fewer than 5 peers."
 
-    - alert: GethLowPeerCount
-      expr: geth_network_peers{job="geth"} < 5
-      for: 5m
-      labels:
-        severity: warning
-      annotations:
-        summary: "Low Geth peer count"
-        description: "Geth node {{ $labels.instance }} has fewer than 5 peers."
-
-    - alert: GethBlockLag
-      expr: (max(geth_blockchain_head_block) - geth_blockchain_head_block{job="geth"}) > 10
-      for: 3m
-      labels:
-        severity: critical
-      annotations:
-        summary: "Geth node is behind"
-        description: "Block lag detected on {{ $labels.instance }}. Behind by more than 10 blocks."
+        - alert: GethBlockLag
+          expr: (max(geth_blockchain_head_block) - geth_blockchain_head_block{job="geth"}) > 10
+          for: 3m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Geth node is behind"
+            description: "Block lag detected on {{ "{{" }} $labels.instance {{ "}}" }}. Behind by more than 10 blocks."
