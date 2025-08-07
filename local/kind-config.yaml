@@ -8,6 +8,8 @@ nodes:
         hostPort: 80
       - containerPort: 443
         hostPort: 443
+      - containerPort: 30303
+        hostPort: 30303
   - role: worker
   - role: worker
 networking:
