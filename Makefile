@@ -1,4 +1,4 @@
-.PHONY: help cluster all-local ingress-local metallb-local deploy-eth-local deploy-monitoring-local destroy
+.PHONY: help cluster all-local ingress-local metallb-local deploy-eth-local deploy-monitoring-local summary destroy
 
 CLUSTER_NAME = ethereum-cluster
 NAMESPACE = ethereum
@@ -18,7 +18,7 @@ help:
 	@echo "  make destroy              - Delete KIND cluster"
 
 
-all-local: cluster metallb-local ingress-local deploy-monitoring-local deploy-eth-local
+all-local: cluster metallb-local ingress-local deploy-monitoring-local deploy-eth-local summary
 
 cluster:
 	@command -v kind >/dev/null 2>&1 || { echo "❌ 'kind' is not installed. Please install it first."; exit 1; }
