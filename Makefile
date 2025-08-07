@@ -21,9 +21,12 @@ help:
 all-local: cluster metallb-local ingress-local deploy-monitoring-local deploy-eth-local
 
 cluster:
+	@command -v kind >/dev/null 2>&1 || { echo "❌ 'kind' is not installed. Please install it first."; exit 1; }
+	@command -v kubectl >/dev/null 2>&1 || { echo "❌ 'kubectl' is not installed. Please install it first."; exit 1; }
+
 	@echo "🔧 Creating kind cluster..."
-	kind create cluster --config local/kind-config.yaml || echo "⚠️ Cluster already exists"
-	kubectl cluster-info
+	@kind create cluster --config local/kind-config.yaml || echo "⚠️ Cluster already exists"
+	@kubectl cluster-info
 
 
 ingress-local:
