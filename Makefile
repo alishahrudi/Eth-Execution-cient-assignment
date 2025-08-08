@@ -61,3 +61,6 @@ summary:
 destroy:
 	@echo "🔥 Deleting KIND cluster..."
 	kind delete cluster --name $(CLUSTER_NAME)
+
+query:
+	@echo "TODO: add tests api"
