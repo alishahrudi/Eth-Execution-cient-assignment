@@ -15,3 +15,4 @@ exec /root/.helios/bin/helios ethereum \
     --network mainnet \
     --consensus-rpc https://www.lightclientdata.org \
     --execution-rpc https://ethereum-mainnet.g.allthatnode.com \
+    --rpc-bind-ip 0.0.0.0

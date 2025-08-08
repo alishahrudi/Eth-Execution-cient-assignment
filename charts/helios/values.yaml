@@ -55,7 +55,7 @@ service:
 ingress:
   enabled: true
   className: ""
-  annotations: {}
+  annotations:
     kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
@@ -82,13 +82,20 @@ resources: {}
 
 # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 livenessProbe:
-  httpGet:
-    path: /
-    port: http
+  tcpSocket:
+    port: 8545
+  initialDelaySeconds: 60    # Wait 30s before starting checks
+  periodSeconds: 10          # Check every 10s
+  timeoutSeconds: 10         # Give up if no response in 10s
+  failureThreshold: 6        # Fail after 6 failed attempts (6 * 10 = 60s failure window)
+
 readinessProbe:
-  httpGet:
-    path: /
-    port: http
+  tcpSocket:
+    port: 8545
+  initialDelaySeconds: 60
+  periodSeconds: 10
+  timeoutSeconds: 10
+  failureThreshold: 6
 
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:
