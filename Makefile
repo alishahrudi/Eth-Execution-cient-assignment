@@ -55,6 +55,11 @@ deploy-eth-local:
 	./scripts/create-sealed-secret.sh
 	helm upgrade --install $(HELM_RELEASE) ./charts/geth-node --namespace $(NAMESPACE) --create-namespace -f charts/geth-node/values.local.yaml
 
+deploy-helios-local:cluster
+	@echo "⛓ build helios node..."
+	docker build -t oumla-helios-test:v1 ./local/
+	kind load docker-image oumla-helios-test:v1 --name ethereum-cluster
+
 summary:
 	./scripts/summary.sh
 
