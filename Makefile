@@ -1,4 +1,4 @@
-.PHONY: help cluster all-local ingress-local metallb-local deploy-eth-local deploy-monitoring-local summary destroy
+.PHONY: help cluster all-local ingress-local metallb-local deploy-eth-local deploy-monitoring-local deploy-helios-local summary destroy
 
 CLUSTER_NAME = ethereum-cluster
 NAMESPACE = ethereum
@@ -14,11 +14,12 @@ help:
 	@echo "  make metallb-local        - Install MetalLB and configure IP pool"
 	@echo "  make deploy-monitoring-local - Deploy Prometheus + Grafana"
 	@echo "  make deploy-eth-local     - Deploy Ethereum node (Geth)"
+	@echo "  make deploy-helios-local     - Deploy Helios light node"
 	@echo "  make summary              - Show Deployment summary"
 	@echo "  make destroy              - Delete KIND cluster"
 
 
-all-local: cluster metallb-local ingress-local deploy-monitoring-local deploy-eth-local summary
+all-local: cluster metallb-local ingress-local deploy-monitoring-local deploy-eth-local deploy-helios-local summary
 
 cluster:
 	@command -v kind >/dev/null 2>&1 || { echo "❌ 'kind' is not installed. Please install it first."; exit 1; }
