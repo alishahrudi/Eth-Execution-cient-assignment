@@ -41,11 +41,11 @@ variable "backup_bucket_name" {
 variable "geth_chart_path" {
   description = "Path to local geth-node Helm chart"
   type        = string
-  default     = "./charts/geth-node"
+  default     = "../charts/geth-node"
 }
 
 variable "prometheus_chart_path" {
   description = "Path to local kube-prometheus-stack Helm chart"
   type        = string
-  default     = "./charts/kube-prometheus-stack"
+  default     = "../charts/kube-prometheus-stack"
 }

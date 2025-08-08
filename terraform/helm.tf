@@ -12,7 +12,6 @@ resource "helm_release" "sealed_secrets" {
   }
 }
 
-# Deploy your local Geth Helm chart
 resource "helm_release" "geth_node" {
   name       = "geth-node"
   chart      = var.geth_chart_path
@@ -22,21 +21,6 @@ resource "helm_release" "geth_node" {
   values = [
     file("${var.geth_chart_path}/values.local.yaml")
   ]
-
-  set {
-    name  = "persistence.enabled"
-    value = "true"
-  }
-
-  set {
-    name  = "persistence.existingClaim"
-    value = kubernetes_persistent_volume_claim.geth_pvc.metadata[0].name
-  }
-
-  set {
-    name  = "service.type"
-    value = "LoadBalancer"
-  }
 }
 
 # Install Prometheus using your local chart

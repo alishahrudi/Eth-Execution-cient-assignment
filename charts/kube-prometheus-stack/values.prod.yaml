@@ -1,0 +1,202 @@
+# Local development configuration for kube-prometheus-stack
+# Optimized for resource usage and local development
+
+# Disable CRD installation if they are already present
+crds:
+  enabled: true # Set to false if CRDs are already installed to save time
+
+# Main Prometheus configuration
+prometheus:
+  enabled: true
+  prometheusSpec:
+    # ServiceMonitors and PodMonitors - Enable discovery across all namespaces for local dev
+    serviceMonitorSelector: {}
+    serviceMonitorNamespaceSelector: {}
+    podMonitorSelector: {}
+    podMonitorNamespaceSelector: {}
+    probeSelector: {}
+    probeNamespaceSelector: {}
+
+    # Resource configuration - Reduced for local development
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 1.5Gi # Increased slightly for stability
+
+    # Storage configuration - Reduced size for local development
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi # Smaller storage for local testing
+
+    # Retention settings - Shorter for local development
+    retention: 1d # Keep less data locally
+    # retentionSize: "8GB" # Uncomment if you want to limit by size instead/as well
+
+    # Disable compaction for faster local processing (optional, might increase disk usage)
+    # disableCompaction: true
+
+    # Rule selectors - Enable all rules for comprehensive monitoring
+    ruleSelector: {}
+    ruleNamespaceSelector: {}
+
+# Grafana configuration
+grafana:
+  enabled: true
+  adminPassword: admin # Use a strong password in production
+
+  # Resource limits - Reduced for local dev
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  # Persistence - Optional for local dev, can be disabled
+  persistence:
+    enabled: true
+    size: 2Gi # Smaller persistence for local
+    accessModes: ["ReadWriteOnce"]
+
+  # Default dashboards - Keep enabled for quick setup
+  defaultDashboardsEnabled: true
+
+  # Sidecar for dashboard loading - Keep enabled
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+    datasources:
+      enabled: true
+      defaultDatasourceEnabled: true
+
+# Alertmanager - Can be disabled for simple local dev if not needed
+alertmanager:
+  enabled: true # Set to false if you don't need alerting locally
+  alertmanagerSpec:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+
+# Node Exporter - Enable for system metrics
+nodeExporter:
+  enabled: true
+
+# Kube State Metrics - Enable for Kubernetes metrics
+kubeStateMetrics:
+  enabled: true
+
+# Kubelet service monitor - Enable for kubelet metrics
+kubelet:
+  enabled: true
+  serviceMonitor:
+    metricRelabelings: []
+    relabelings: []
+
+# CoreDNS metrics - Enable for DNS metrics
+coreDns:
+  enabled: true
+  serviceMonitor:
+    interval: "" # Use default interval
+
+# API Server metrics - Enable for Kubernetes API metrics
+kubeApiServer:
+  enabled: true
+  serviceMonitor:
+    interval: "" # Use default interval
+
+# Controller Manager metrics
+kubeControllerManager:
+  enabled: true
+  serviceMonitor:
+    interval: "" # Use default interval
+
+# Scheduler metrics
+kubeScheduler:
+  enabled: true
+  serviceMonitor:
+    interval: "" # Use default interval
+
+# Proxy metrics
+kubeProxy:
+  enabled: true
+  serviceMonitor:
+    interval: "" # Use default interval
+
+# Etcd metrics (if running etcd in cluster)
+kubeEtcd:
+  enabled: true
+  serviceMonitor:
+    interval: "" # Use default interval
+
+# Prometheus Operator configuration
+prometheusOperator:
+  enabled: true
+  # Reduce resources for local development
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 300Mi
+  
+  # Security context - Keep default non-root settings
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroup: 65534
+
+# Default rules configuration
+defaultRules:
+  create: true
+  rules:
+    alertmanager: true
+    etcd: true
+    configReloaders: true
+    general: true
+    k8sContainerCpuUsageSecondsTotal: true
+    k8sContainerMemoryCache: true
+    k8sContainerMemoryRss: true
+    k8sContainerMemorySwap: true
+    k8sContainerResource: true
+    k8sPodOwner: true
+    kubeApiserverAvailability: true
+    kubeApiserverBurnrate: true
+    kubeApiserverHistogram: true
+    kubeApiserverSlos: true
+    kubeControllerManager: true
+    kubelet: true
+    kubeProxy: true
+    kubePrometheusGeneral: true
+    kubePrometheusNodeRecording: true
+    kubernetesApps: true
+    kubernetesResources: true
+    kubernetesStorage: true
+    kubernetesSystem: true
+    kubeSchedulerAlerting: true
+    kubeSchedulerRecording: true
+    kubeStateMetrics: true
+    network: true
+    node: true
+    nodeExporterAlerting: true
+    nodeExporterRecording: true
+    prometheus: true
+    prometheusOperator: true
+
+# Global image pull policy
+global:
+  imagePullPolicy: IfNotPresent # Save bandwidth for local development
