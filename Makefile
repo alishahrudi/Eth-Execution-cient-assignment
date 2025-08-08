@@ -1,4 +1,4 @@
-.PHONY: help cluster all-local ingress-local metallb-local deploy-eth-local deploy-monitoring-local deploy-helios-local summary destroy
+.PHONY: help cluster all-local ingress-local metallb-local deploy-eth-local deploy-monitoring-local deploy-helios-local summary destroy query
 
 CLUSTER_NAME = ethereum-cluster
 NAMESPACE = ethereum
@@ -17,6 +17,7 @@ help:
 	@echo "  make deploy-helios-local     - Deploy Helios light node"
 	@echo "  make summary              - Show Deployment summary"
 	@echo "  make destroy              - Delete KIND cluster"
+	@echo "  make query                - Send rpc query"
 
 
 all-local: cluster metallb-local ingress-local deploy-monitoring-local deploy-eth-local deploy-helios-local summary
@@ -70,4 +71,9 @@ destroy:
 	kind delete cluster --name $(CLUSTER_NAME)
 
 query:
-	@echo "TODO: add tests api"
+	@echo "get net_peerCount from geth node"
+	curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"net_peerCount","params":[],"id":1}' http://api.oumla.local
+	@echo "get eth_blockNumber from geth node"
+	curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' http://api.oumla.local
+	@echo "get eth_blockNumber from helios node"
+	curl -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' http://helios.oumla.local
