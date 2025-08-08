@@ -59,6 +59,7 @@ deploy-helios-local:cluster
 	@echo "⛓ build helios node..."
 	docker build -t oumla-helios-test:v1 ./local/
 	kind load docker-image oumla-helios-test:v1 --name ethereum-cluster
+	helm upgrade --install helios ./charts/helios --namespace helios --create-namespace -f charts/helios/values.yaml
 
 summary:
 	./scripts/summary.sh
