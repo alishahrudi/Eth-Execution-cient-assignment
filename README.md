@@ -12,6 +12,38 @@ Developed as part of a Senior DevOps Engineer technical assessment, this solutio
 * Network resiliency and security considerations
 * Extensibility to hybrid and multi-cloud environments
 
+## Table of Contents
+
+- [Ethereum Execution Client Infrastructure – DevOps Assessment](#ethereum-execution-client-infrastructure--devops-assessment)
+  - [Executive Summary](#executive-summary)
+  - [Why We Should Operate Our Own Ethereum Node](#why-we-should-operate-our-own-ethereum-node)
+    - [Where Public RPC Services Fall Short](#where-public-rpc-services-fall-short)
+    - [Why This Is Still a Hard Decision](#why-this-is-still-a-hard-decision)
+    - [Why It Makes Strategic Sense for Us](#why-it-makes-strategic-sense-for-us)
+    - [Assumptions Before We Proceed](#assumptions-before-we-proceed)
+  - [Technology Choices and Rationale](#technology-choices-and-rationale)
+    - [Execution Client: Geth](#execution-client-geth)
+    - [Synchronization Strategy: Snap Sync](#synchronization-strategy-snap-sync)
+    - [Network: Sepolia Testnet](#network-sepolia-testnet)
+  - [Infrastructure Architecture](#infrastructure-architecture)
+    - [Deployment Framework](#deployment-framework)
+    - [Network Exposure](#network-exposure)
+    - [Secret Management: Sealed Secrets](#secret-management-sealed-secrets-gitops-safe-encryption-of-kubernetes-secrets)
+    - [Observability Stack](#observability-stack)
+  - [Production Considerations](#production-considerations)
+    - [Infrastructure Provisioning](#infrastructure-provisioning)
+    - [State Management and Disaster Recovery](#state-management-and-disaster-recovery)
+    - [Light Client Integration (Helios)](#light-client-integration-helios)
+    - [Design Automation and Lifecycle Management](#design-automation-and-lifecycle-management)
+    - [Assumptions and Constraints](#assumptions-and-constraints)
+    - [Repository Structure](#repository-structure)
+  - [Setup Instructions (Local)](#setup-instructions-local)
+  - [Setup Instructions (Production)](#setup-instructions-production)
+  - [Monitoring / Alerting Documentation](#monitoring--alerting-documentation)
+  - [Scalability and Reliability](#scalability-and-reliability)
+  - [Usage Instructions](#usage-instructions)
+  - [Constraints and Assumptions](#constraints-and-assumptions)
+  - [Security Considerations](#security-considerations)
 
 
 ## Why We Should Operate Our Own Ethereum Node
