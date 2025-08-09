@@ -12,6 +12,9 @@ Developed as part of a Senior DevOps Engineer technical assessment, this solutio
 * Network resiliency and security considerations
 * Extensibility to hybrid and multi-cloud environments
 
+[![Helm Lint](https://github.com/alishahrudi/Eth-Execution-cient-assignment/actions/workflows/helm-lint.yaml/badge.svg)](https://github.com/alishahrudi/Eth-Execution-cient-assignment/actions/workflows/helm-lint.yaml)
+[![Kind Cluster Test](https://github.com/alishahrudi/Eth-Execution-cient-assignment/actions/workflows/test-kind.yaml/badge.svg)](https://github.com/alishahrudi/Eth-Execution-cient-assignment/actions/workflows/test-kind.yaml)
+
 ## Table of Contents
 
 - [Ethereum Execution Client Infrastructure – DevOps Assessment](#ethereum-execution-client-infrastructure--devops-assessment)
