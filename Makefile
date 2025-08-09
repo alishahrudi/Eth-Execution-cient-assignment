@@ -68,6 +68,7 @@ summary:
 
 destroy:
 	@echo "🔥 Deleting KIND cluster..."
+	rm ./sealed-jwt-secret.yaml
 	kind delete cluster --name $(CLUSTER_NAME)
 
 query:

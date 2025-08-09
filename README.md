@@ -288,9 +288,9 @@ Helios is deployed against Ethereum **mainnet**, providing a practical demonstra
 | ------------ | -------------------------------------------- |
 | `charts/`    | Helm chart definitions and templates         |
 | `terraform/` | Infrastructure provisioning modules          |
-| `scripts/`   | Utility and lifecycle management scripts     |
-| `docs/`      | Architecture documentation and design notes  |
-| `helios/`    | Helios Docker configuration and launch setup |
+| `scripts/`   | Utility and secret management scripts        |
+| `docs/`      | Architecture diagrams and design notes       |
+| `local/`     | Kind cluster manifest and helios Dockerfile  |
 | `Makefile`   | Local automation targets                     |
 
 
