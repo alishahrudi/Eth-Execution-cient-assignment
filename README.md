@@ -12,7 +12,7 @@ Developed as part of a Senior DevOps Engineer technical assessment, this solutio
 * Network resiliency and security considerations
 * Extensibility to hybrid and multi-cloud environments
 
----
+
 
 ## Why We Should Operate Our Own Ethereum Node
 
@@ -21,7 +21,6 @@ Before we commit to deploying and maintaining our own Ethereum infrastructure, I
 First, let’s acknowledge the reality:
 Operating a production-grade Ethereum node is not a “spin up and forget” exercise. It’s resource-intensive, requires specialized expertise, and will demand ongoing operational investment. Public RPC providers like Infura, Ankr, or publicnode can give us quick access to the network without these burdens — but at the cost of **control, reliability, and long-term flexibility**.
 
----
 
 ### Where Public RPC Services Fall Short
 
@@ -30,7 +29,6 @@ Operating a production-grade Ethereum node is not a “spin up and forget” exe
 * **Lack of Trust Boundaries** – We’re relying on someone else’s node for consensus data. We cannot independently verify the chain state or guarantee the provenance of the information returned.
 * **No Customization** – Public RPCs are one-size-fits-all. If we need archive mode, debug APIs, or specialized telemetry, we won’t get it without running our own infrastructure.
 
----
 
 ### Why This Is Still a Hard Decision
 
@@ -43,7 +41,6 @@ Running our own node means:
 
 It’s not cheap — both in terms of infrastructure and people. Many companies decide against it because the cost outweighs the control.
 
----
 
 ### Why It Makes Strategic Sense for Us
 
@@ -54,7 +51,7 @@ If we decide to move forward, it’s because:
 * We need **advanced telemetry and analytics** that public nodes can’t provide.
 * At our projected transaction volume, **long-term cost optimization** favors in-house infrastructure over per-call public RPC billing.
 
----
+
 
 ### Assumptions Before We Proceed
 
@@ -68,7 +65,7 @@ I’m assuming that as a company, we have:
 If those boxes are ticked, then we can confidently move forward knowing **we’re investing in control, reliability, and future-proofing — not just infrastructure for the sake of it**.
 
 
----
+
 ## Technology Choices and Rationale
 
 ### Execution Client: Geth
@@ -102,7 +99,7 @@ The **Sepolia test network** was chosen based on its alignment with real-world E
 
 This makes Sepolia ideal for simulating mainnet conditions in a cost-efficient and safe manner.
 
----
+
 
 ## Infrastructure Architecture
 
@@ -126,9 +123,9 @@ While Helm serves as the foundational tool for local orchestration, it is recomm
 * These components mirror production ingress models while supporting rapid testing in local or CI contexts.
 Great catch. Here’s an **addendum to your Infrastructure Architecture section** that introduces **Sealed Secrets** in an enterprise-grade way and ties it directly to your Makefile flow.
 
----
 
-## Secret Management: Sealed Secrets (GitOps-safe encryption of Kubernetes Secrets)
+
+### Secret Management: Sealed Secrets (GitOps-safe encryption of Kubernetes Secrets)
 
 This project uses **Bitnami Sealed Secrets** to manage sensitive configuration in a **GitOps-compatible** manner. Instead of committing raw `Secret` objects (which are merely base64-encoded), we commit **encrypted** `SealedSecret` CRs. Only the **cluster-resident controller** can decrypt them into runtime `Secret`s.
 
@@ -182,7 +179,7 @@ This project uses **Bitnami Sealed Secrets** to manage sensitive configuration i
 * **CRD ordering**: Ensure the Sealed-Secrets CRD and controller are present **before** applying `SealedSecret` resources (addressed in your Makefile’s order).
 * **Binary and large payloads**: Supported, but prefer external KMS + references for very large or rotational secrets to keep Git concise and reviewable.
 
-## Observability Stack
+### Observability Stack
 
 Comprehensive observability is achieved through the **kube-prometheus-stack**, which integrates:
 
@@ -220,7 +217,7 @@ VolumeSnapshots support cloud-native recovery and align with platform SLAs for h
 
 ---
 
-## Light Client Integration (Helios)
+### Light Client Integration (Helios)
 
 To illustrate Ethereum's stateless client direction and validate trust-minimized access to the execution layer, the project includes integration with [Helios](https://github.com/a16z/helios), an a16z-developed light client implemented in Rust.
 
@@ -232,25 +229,25 @@ Key characteristics:
 
 Helios is deployed against Ethereum **mainnet**, providing a practical demonstration of light client operation in environments where resource constraints or security isolation are required.
 
----
 
-## Design Automation and Lifecycle Management
+
+### Design Automation and Lifecycle Management
 
 * **Makefile** is used to automate local deployment, validation, and teardown workflows. This enforces repeatability and reduces cognitive overhead for engineers onboarding or reviewing the system.
 * **Git-based release control** is supported via Helm templating, ensuring that deployments are reproducible and auditable.
 * The repository layout and scripts are structured to integrate seamlessly into GitOps platforms such as **Argo CD** or **Flux CD**, enabling declarative infrastructure promotion and compliance with change management policies.
 
----
 
-## Assumptions and Constraints
+
+### Assumptions and Constraints
 
 * Public consensus RPC endpoints are currently limited in their support for light client APIs (e.g., `/eth/v1/beacon/light_client/bootstrap`). Running a local beacon node is recommended for full Helios compatibility.
 * This solution is intended to demonstrate best practices and foundational patterns. Additional features (e.g., secure secret management, TLS termination, horizontal scaling of RPC gateways) can be incorporated in production implementations.
 * Full fault tolerance and HA behavior (e.g., redundant node pools, chain split protection) are out of scope but can be introduced with minimal architectural changes.
 
----
 
-## Repository Structure
+
+### Repository Structure
 
 | Path         | Purpose                                      |
 | ------------ | -------------------------------------------- |
@@ -279,7 +276,7 @@ Install and have in your `PATH`:
 
 > Review the `Makefile` to see each target’s behavior and dependencies.
 
-## One-Command Local Bring-Up
+### One-Command Local Bring-Up
 
 ```bash
 make all-local
@@ -296,7 +293,7 @@ During `deploy-eth-local` and `metallb-local`, you may be prompted for **sudo**.
 
 This is a standard, safe setup step for local evaluation.
 
-## Post-Install Summary and `/etc/hosts`
+### Post-Install Summary and `/etc/hosts`
 
 At the end of the automation, `make summary` runs automatically and prints:
 
@@ -307,12 +304,13 @@ At the end of the automation, `make summary` runs automatically and prints:
 Update your `/etc/hosts` using the IP shown in the summary so the local domains resolve. The summary will tell you exactly what to add; expect entries similar to:
 
 ```
-<metallb-ip>  api.oumla.local helios.oumla.local
+<metallb-ip>  api.oumla.local 
+<metallb-ip>  helios.oumla.local 
+<metallb-ip>  grafana.oumla.local 
 ```
 
-(Add any additional hostnames printed by the summary, e.g., a Grafana host, if present.)
 
-## Let the node settle, then verify
+### Let the node settle, then verify
 
 Give Geth a couple of minutes to advance snap sync. Then verify connectivity and chain progress:
 
@@ -327,9 +325,9 @@ This sends:
 
 You should see non-error JSON-RPC responses; the block number will increase as sync progresses.
 
----
 
-## Make Targets (what each one does)
+
+### Make Targets (what each one does)
 
 * `make help`
   Prints the target catalog.
@@ -370,9 +368,9 @@ With these steps, you get a fully functional local environment—networked, obse
 
 You’re right—I should have called out the Terraform that’s already in your repo. Here’s an updated, **production setup** section that’s explicitly Terraform-centric and assumes your `terraform/` directory is the source of truth for cloud provisioning. It keeps the same enterprise tone and again states that **Helios/light clients are not deployed in prod**.
 
----
 
-# Setup Instructions (Production)
+
+## Setup Instructions (Production)
 
 This guide describes how to deploy the stack on **GCP (GKE)** using the **Terraform code in this repository** for platform provisioning, plus GitOps (Argo CD) and Helm for application delivery. The same pattern maps to AWS/Azure with provider swaps.
 
@@ -381,7 +379,7 @@ This guide describes how to deploy the stack on **GCP (GKE)** using the **Terraf
 
 ---
 ![Alt text](docs/gcp.drawio.png)
-## 1) Provision the platform with the repo’s Terraform
+### 1) Provision the platform with the repo’s Terraform
 
 All cloud primitives should come from **this repo’s Terraform** (network, GKE, storage, IAM, snapshot classes, etc.).
 
@@ -418,7 +416,7 @@ terraform apply -var-file=terraform.tfvars
 
 ---
 
-## 2) Bootstrap the “platform layer” add-ons (GitOps-friendly)
+### 2) Bootstrap the “platform layer” add-ons (GitOps-friendly)
 
 Install cluster-level add-ons that everything depends on. In production, manage these with **Argo CD** (recommended) or a one-time Helm bootstrap:
 
@@ -431,7 +429,7 @@ Argo CD should own the desired state (charts/manifests) in a `platform` applicat
 
 ---
 
-## 3) Deploy the observability stack (from this repo)
+### 3) Deploy the observability stack (from this repo)
 
 Use the **kube-prometheus-stack** Helm chart (as included in this repo) via Argo CD or Helm:
 
@@ -445,7 +443,7 @@ Values are environment-scoped (e.g., `values.prod.yaml`).
 
 ---
 
-## 4) Secrets via Sealed Secrets (produced from this repo)
+### 4) Secrets via Sealed Secrets (produced from this repo)
 
 This repo already wires sealed secrets into the flow. In production:
 
@@ -458,7 +456,7 @@ This preserves GitOps, enables audit, and avoids plaintext in repos/CI logs.
 
 ---
 
-## 5) Deploy the Ethereum execution client (Geth) with Helm
+### 5) Deploy the Ethereum execution client (Geth) with Helm
 
 Use the Helm chart in this repo (e.g., `charts/geth-node`) with a **production values overlay**:
 
@@ -477,7 +475,7 @@ Use the Helm chart in this repo (e.g., `charts/geth-node`) with a **production v
 
 ---
 
-## 6) Backups and disaster recovery (from this repo’s design)
+### 6) Backups and disaster recovery (from this repo’s design)
 
 * Ensure **CSI VolumeSnapshot** is enabled (Terraform should have set this up).
 * Define a **VolumeSnapshotClass**; schedule **periodic snapshots** (e.g., every 6–12h).
@@ -488,7 +486,7 @@ For strict RPO/RTO or compliance, pair snapshots with off-cloud copies and key e
 
 ---
 
-## 7) Security and compliance posture
+### 7) Security and compliance posture
 
 * **Workload Identity** (KSA↔GSA mapping), no node-level creds
 * **Private cluster** + controlled egress via NAT; restrict metadata server
@@ -499,7 +497,7 @@ For strict RPO/RTO or compliance, pair snapshots with off-cloud copies and key e
 
 ---
 
-## 8) Release and promotion (from this repo to prod)
+### 8) Release and promotion (from this repo to prod)
 
 * Use **Argo CD ApplicationSets** to apply the same charts into **dev → stage → prod**, driven by values files and namespaces.
 * All changes are PR-gated; Argo handles rollout and drift detection.
@@ -507,7 +505,7 @@ For strict RPO/RTO or compliance, pair snapshots with off-cloud copies and key e
 
 ---
 
-## What uses Terraform from this repo vs. Helm/GitOps
+### What uses Terraform from this repo vs. Helm/GitOps
 
 * **Terraform (in this repo):** networking, GKE clusters, node pools, IAM, storage, snapshot classes, DNS scaffolding.
 * **Helm (in this repo) + Argo CD:** ingress/controllers, Sealed Secrets controller, kube-prometheus-stack, Geth StatefulSet and services, any per-env values.
@@ -519,9 +517,8 @@ For strict RPO/RTO or compliance, pair snapshots with off-cloud copies and key e
 
 A regional, HA GKE cluster provisioned by **your Terraform**, secured and observable; **Sealed Secrets** for GitOps-safe credentials; **kube-prometheus-stack** for chain and platform health; and a **Geth StatefulSet** with snapshots and a documented DR path—ready for production SLOs. Helios/light clients are deliberately excluded from the production rollout.
 
----
 
-# Monitoring / Alerting Documentation
+## Monitoring / Alerting Documentation
 
 This project uses the **kube-prometheus-stack** Helm chart to provide a complete, production-ready observability suite for the Ethereum node and related infrastructure.
 
@@ -573,7 +570,7 @@ With kube-prometheus-stack, this setup delivers centralized metrics collection, 
 
 
 
-# Scalability and Reliability
+## Scalability and Reliability
 
 ### Enterprise Context and Challenges
 
@@ -659,7 +656,7 @@ Scaling Ethereum execution clients in production environments requires a **measu
 
 
 
-# Usage Instructions
+## Usage Instructions
 
 Once the deployment is complete, both the **Geth execution client** and the **Helios light client** are exposed via **Ingress** and can be reached through local domain names configured in `/etc/hosts`.
 
@@ -810,7 +807,7 @@ To ensure the deliverable remained focused, reproducible, and aligned with the o
 | Reduced local resource allocation  | Performance bottlenecks not visible during testing                    | Conduct load testing and resource profiling in production-like staging environment |
 
 
-# Security Considerations
+## Security Considerations
 
 While this project is designed primarily for local and test network deployment, the following security measures and recommendations apply:
 
