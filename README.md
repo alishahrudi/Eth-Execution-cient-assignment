@@ -463,3 +463,57 @@ For strict RPO/RTO or compliance, pair snapshots with off-cloud copies and key e
 ### Outcome
 
 A regional, HA GKE cluster provisioned by **your Terraform**, secured and observable; **Sealed Secrets** for GitOps-safe credentials; **kube-prometheus-stack** for chain and platform health; and a **Geth StatefulSet** with snapshots and a documented DR path—ready for production SLOs. Helios/light clients are deliberately excluded from the production rollout.
+
+---
+
+# Monitoring / Alerting Documentation
+
+This project uses the **kube-prometheus-stack** Helm chart to provide a complete, production-ready observability suite for the Ethereum node and related infrastructure.
+
+### Why kube-prometheus-stack
+
+* **Unified deployment** of Prometheus, Alertmanager, Grafana, and supporting CRDs in a single Helm release.
+* **ServiceMonitor** and **PodMonitor** CRDs allow Kubernetes-native service scraping without manual Prometheus configuration changes.
+* **Centralized monitoring** for both infrastructure and application metrics, deployable through GitOps workflows.
+* **Prebuilt dashboards and alert rules** that can be customized to Ethereum-specific workloads.
+
+### Grafana Access
+
+* **Credentials**: Default admin username/password are defined in the Helm values file for local environments and are shown in the deployment summary.
+* **URL**: The Grafana address will be displayed:
+
+  * **Automatically at the end of `make all-local`**
+  * Or at any time by running:
+
+    ```bash
+    make summary
+    ```
+* In local environments, Grafana is exposed via MetalLB + Ingress. In production, DNS and TLS should be provisioned via ExternalDNS and cert-manager.
+
+### Dashboards
+
+* The primary Ethereum node metrics view uses the **Go-Ethereum-by-Instance** dashboard — the official dashboard recommended by the Geth project — which provides detailed visibility into:
+
+  * Peer counts and connection health
+  * Sync progress and chain head metrics
+  * Transaction pool size
+  * RPC method latencies and error rates
+  * Resource consumption (CPU, memory, disk I/O)
+* This dashboard is automatically imported into Grafana as part of the deployment.
+* The dashboard path and UID are shown in the deployment summary for direct navigation.
+
+### Alerts
+
+* Initial alerting rules are implemented via **kube-prometheus-stack CRDs** and stored under the `geth-node` Helm chart `templates/` directory.
+* Current rules cover:
+
+  * Peer count falling below a healthy threshold
+  * Node sync lag exceeding expected limits
+  * RPC error rate spikes
+* In local environments, Alertmanager is preconfigured for basic testing.
+  In production, it should be integrated with enterprise alerting backends (PagerDuty, Slack, Opsgenie, email, etc.).
+
+
+With kube-prometheus-stack, this setup delivers centralized metrics collection, an industry-standard Geth-recommended dashboard (**Go-Ethereum-by-Instance**), and foundational alerting. All key monitoring endpoints, credentials, and dashboard links are surfaced automatically at the end of deployment or by running `make summary`.
+
+---
