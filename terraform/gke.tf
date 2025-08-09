@@ -20,7 +20,7 @@ resource "google_container_cluster" "primary" {
     client_certificate_config {
       issue_client_certificate = false
     }
-  }
+  } 
 
   addons_config {
     http_load_balancing {
