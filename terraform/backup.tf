@@ -3,7 +3,7 @@ resource "kubernetes_cron_job" "geth_backup" {
   metadata {
     name      = "geth-backup"
     namespace = kubernetes_namespace.geth.metadata[0].name
-  }
+  } 
   spec {
     schedule = "0 2 * * *"  # Daily at 2 AM
     job_template {
