@@ -754,4 +754,15 @@ To ensure the deliverable remained focused, reproducible, and aligned with the o
 | Single execution client type       | Vulnerability or bug in Geth could affect service availability        | Diversify client types (e.g., Nethermind, Besu) in multi-client topology           |
 | Reduced local resource allocation  | Performance bottlenecks not visible during testing                    | Conduct load testing and resource profiling in production-like staging environment |
 
----
+
+# Security Considerations
+
+While this project is designed primarily for local and test network deployment, the following security measures and recommendations apply:
+
+* **Sealed Secrets**: All sensitive Kubernetes secrets are encrypted using **Bitnami Sealed Secrets**, ensuring they can be safely stored in Git without exposing plaintext credentials.
+* **Role-Based Access Control (RBAC)**: Kubernetes RBAC should be configured to restrict administrative privileges to trusted operators only.
+* **Ingress Security**: For production, ingress endpoints should be secured with TLS termination (e.g., cert-manager) and exposed only through authenticated APIs or firewall whitelists.
+* **Client Diversity**: In production, diversify execution clients to reduce exposure to single-client vulnerabilities.
+* **Network Policies**: Apply Kubernetes NetworkPolicies to limit pod-to-pod and pod-to-external communications to only what is required.
+* **Helios Usage**: Helios is deployed locally for demonstration; in production, avoid exposing experimental or light-client RPC endpoints publicly.
+
