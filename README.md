@@ -14,6 +14,61 @@ Developed as part of a Senior DevOps Engineer technical assessment, this solutio
 
 ---
 
+## Why We Should Operate Our Own Ethereum Node
+
+Before we commit to deploying and maintaining our own Ethereum infrastructure, I want to be clear about **why this matters** and **what it means for us as an organization**.
+
+First, let’s acknowledge the reality:
+Operating a production-grade Ethereum node is not a “spin up and forget” exercise. It’s resource-intensive, requires specialized expertise, and will demand ongoing operational investment. Public RPC providers like Infura, Ankr, or publicnode can give us quick access to the network without these burdens — but at the cost of **control, reliability, and long-term flexibility**.
+
+---
+
+### Where Public RPC Services Fall Short
+
+* **Rate Limits & Throughput Bottlenecks** – Under heavy load, public nodes will throttle requests. For mission-critical applications, this introduces unpredictable latency and failure points.
+* **Vendor Dependency** – If they go down, we go down. We inherit their maintenance windows, upgrade cycles, and operational priorities — none of which we control.
+* **Lack of Trust Boundaries** – We’re relying on someone else’s node for consensus data. We cannot independently verify the chain state or guarantee the provenance of the information returned.
+* **No Customization** – Public RPCs are one-size-fits-all. If we need archive mode, debug APIs, or specialized telemetry, we won’t get it without running our own infrastructure.
+
+---
+
+### Why This Is Still a Hard Decision
+
+Running our own node means:
+
+* **Significant hardware requirements** (CPU, memory, SSD storage, and bandwidth)
+* **Continuous operations** — monitoring, patching, upgrading, incident response
+* **Backup and recovery** strategies to protect chain data
+* **Scaling and failover** considerations for high availability
+
+It’s not cheap — both in terms of infrastructure and people. Many companies decide against it because the cost outweighs the control.
+
+---
+
+### Why It Makes Strategic Sense for Us
+
+If we decide to move forward, it’s because:
+
+* We want **full operational control** over uptime, maintenance windows, and scaling.
+* We have **compliance requirements** that demand chain data be validated and stored internally.
+* We need **advanced telemetry and analytics** that public nodes can’t provide.
+* At our projected transaction volume, **long-term cost optimization** favors in-house infrastructure over per-call public RPC billing.
+
+---
+
+### Assumptions Before We Proceed
+
+I’m assuming that as a company, we have:
+
+1. **Evaluated the trade-offs** between public and private nodes in terms of cost, complexity, and risk.
+2. **Confirmed the strategic need** for operating our own node rather than relying on public infrastructure.
+3. **Allocated the necessary budget and operational resources** to support this decision long-term.
+4. **Agreed on compliance and security drivers** that make self-hosting the right move.
+
+If those boxes are ticked, then we can confidently move forward knowing **we’re investing in control, reliability, and future-proofing — not just infrastructure for the sake of it**.
+
+
+---
 ## Technology Choices and Rationale
 
 ### Execution Client: Geth
@@ -206,13 +261,13 @@ Helios is deployed against Ethereum **mainnet**, providing a practical demonstra
 | `helios/`    | Helios Docker configuration and launch setup |
 | `Makefile`   | Local automation targets                     |
 
----
-# Setup Instructions (Local)
+
+## Setup Instructions (Local)
 
 This local environment uses KinD to stand up a Kubernetes cluster, exposes services via MetalLB and NGINX Ingress, deploys Geth (Sepolia, snap sync) and the monitoring stack via Helm, and optionally runs a Helios light node for comparison. The process is automated through `make` targets.
-## Architecture
+### Architecture
 ![Alt text](docs/local.drawio.png)
-## Prerequisites
+### Prerequisites
 
 Install and have in your `PATH`:
 
