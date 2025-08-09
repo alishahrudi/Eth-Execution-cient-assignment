@@ -401,8 +401,6 @@ You should see non-error JSON-RPC responses; the block number will increase as s
 
 With these steps, you get a fully functional local environment—networked, observable, and ready to validate both a snap-sync Geth execution client and a light Helios node—while mirroring the production toolchain and patterns.
 
-You’re right—I should have called out the Terraform that’s already in your repo. Here’s an updated, **production setup** section that’s explicitly Terraform-centric and assumes your `terraform/` directory is the source of truth for cloud provisioning. It keeps the same enterprise tone and again states that **Helios/light clients are not deployed in prod**.
-
 
 
 ## Setup Instructions (Production)
